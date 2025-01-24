@@ -1,44 +1,55 @@
 pipeline {
     agent any
+
     environment {
-        GITHUB_REPO_URL = 'https://github.com/ankita101242/UpcomingUniverse.git'
+        DOCKER_IMAGE_BACKEND = 'ankitaagrawal12/backend:latest'
+        DOCKER_IMAGE_FRONTEND = 'ankitaagrawal12/frontend:latest'
     }
+
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: GITHUB_REPO_URL
+                echo 'Checking out code from repository...'
+                git url: 'https://github.com/ankita101242/Upcoming_Universe_K8.git', branch: 'main'
             }
         }
-        
-        stage('Build and Deploy') {
+
+        stage('Build and Push Frontend Docker Image') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    sh 'kubectl apply -f frontend/frontend-deployment.yaml'
-                    sh 'kubectl apply -f backend/backend-deployment.yaml'
+                echo 'Building and pushing frontend Docker image...'
+                script {
+                    docker.build(DOCKER_IMAGE_FRONTEND, './frontend').push()
                 }
             }
         }
-        
-        stage('Test Deployment') {
+
+        stage('Build and Push Backend Docker Image') {
             steps {
-                withCredentials([file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')]) {
-                    sh 'kubectl get pods'
-                    sh 'kubectl get services'
+                echo 'Building and pushing backend Docker image...'
+                script {
+                    docker.build(DOCKER_IMAGE_BACKEND, './backend').push()
                 }
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                echo 'Applying Kubernetes deployment manifests...'
+                sh '''
+                    kubectl apply -f frontend/frontend-deployment.yaml
+                    kubectl apply -f backend/backend-deployment.yaml
+                    kubectl apply -f backend/mysql-deployment.yaml
+                '''
             }
         }
     }
-    
+
     post {
-        always {
-            echo 'Pipeline finished.'
-        }
         success {
-            echo 'Pipeline succeeded!'
+            echo 'Pipeline executed successfully!'
         }
         failure {
             echo 'Pipeline failed!'
         }
     }
 }
-
