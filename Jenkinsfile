@@ -2,15 +2,24 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE_BACKEND = 'ankitaagrawal12/backend:latest'
-        DOCKER_IMAGE_FRONTEND = 'ankitaagrawal12/frontend:latest'
+        GITHUB_REPO_URL = 'https://github.com/ankita101242/Upcoming_Universe_K8.git'
     }
 
     stages {
+
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh 'docker rm -f frontend || true'
+                    sh 'docker rm -f backend || true'
+                }
+            }
+        }
+        
         stage('Checkout Code') {
             steps {
                 echo 'Checking out code from repository...'
-                git url: 'https://github.com/ankita101242/Upcoming_Universe_K8.git', branch: 'main'
+                git branch: 'main', url: "${GITHUB_REPO_URL}"
             }
         }
 
@@ -19,11 +28,11 @@ pipeline {
                 script {
                     echo 'Building backend Docker image...'
                     dir('./backend') {
-                        docker.build(DOCKER_IMAGE_BACKEND, '.')
+                        docker.build("ankitaagrawal12/backend", '.')
                     }
                     echo 'Building frontend Docker image...'
                     dir('./frontend') {
-                        docker.build(DOCKER_IMAGE_FRONTEND, '.')
+                        docker.build("ankitaagrawal12/frontend", '.')
                     }
                 }
             }
@@ -32,17 +41,9 @@ pipeline {
         stage('Push Docker Images') {
             steps {
                 script {
-                    echo 'Pushing backend Docker image...'
-                    withCredentials([usernamePassword(credentialsId: 'DockerHubCred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                        sh "docker push ${DOCKER_IMAGE_BACKEND}"
-                        sh 'docker logout'
-                    }
-                    echo 'Pushing frontend Docker image...'
-                    withCredentials([usernamePassword(credentialsId: 'DockerHubCred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
-                        sh "docker push ${DOCKER_IMAGE_FRONTEND}"
-                        sh 'docker logout'
+                    docker.withRegistry('', 'DockerHubCred') {
+                        sh 'docker push ankitaagrawal12/frontend:latest'
+                        sh 'docker push ankitaagrawal12/backend:latest'
                     }
                 }
             }
