@@ -14,20 +14,36 @@ pipeline {
             }
         }
 
-        stage('Build and Push Frontend Docker Image') {
+        stage('Build Docker Images') {
             steps {
-                echo 'Building and pushing frontend Docker image...'
                 script {
-                    docker.build(DOCKER_IMAGE_FRONTEND, './frontend').push()
+                    echo 'Building backend Docker image...'
+                    dir('./backend') {
+                        docker.build(DOCKER_IMAGE_BACKEND, '.')
+                    }
+                    echo 'Building frontend Docker image...'
+                    dir('./frontend') {
+                        docker.build(DOCKER_IMAGE_FRONTEND, '.')
+                    }
                 }
             }
         }
 
-        stage('Build and Push Backend Docker Image') {
+        stage('Push Docker Images') {
             steps {
-                echo 'Building and pushing backend Docker image...'
                 script {
-                    docker.build(DOCKER_IMAGE_BACKEND, './backend').push()
+                    echo 'Pushing backend Docker image...'
+                    withCredentials([usernamePassword(credentialsId: 'DockerHubCred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        sh "docker push ${DOCKER_IMAGE_BACKEND}"
+                        sh 'docker logout'
+                    }
+                    echo 'Pushing frontend Docker image...'
+                    withCredentials([usernamePassword(credentialsId: 'DockerHubCred', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                        sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+                        sh "docker push ${DOCKER_IMAGE_FRONTEND}"
+                        sh 'docker logout'
+                    }
                 }
             }
         }
