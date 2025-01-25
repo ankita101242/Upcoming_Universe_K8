@@ -11,7 +11,7 @@ pipeline {
         stage('Start Minikube') {
             steps {
                 echo 'Starting Minikube cluster...'
-                sh 'minikube start --driver=docker'
+                sh 'minikube start'
             }
         }
 
