@@ -67,7 +67,7 @@ pipeline {
         stage('Open Minikube Dashboard') {
             steps {
                 echo 'Opening Minikube Dashboard...'
-                sh 'minikube dashboard --url &'
+                sh 'minikube dashboard'
             }
         }
     }
