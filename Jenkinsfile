@@ -11,7 +11,7 @@ pipeline {
         stage('Minikube Start') {
             steps {
                 echo 'Starting Minikube...'
-                sh 'systemctl restart docker'
+                sh 'restart docker'
                 sh 'minikube start'
             }
         }
