@@ -7,15 +7,7 @@ pipeline {
     }
 
     stages {
-
-        stage('Minikube Start') {
-            steps {
-                echo 'Starting Minikube...'
-                sh 'restart docker'
-                sh 'minikube start'
-            }
-        }
-
+        
         stage('Cleanup') {
             steps {
                 script {
@@ -69,20 +61,6 @@ pipeline {
                     kubectl apply -f backend/backend-deployment.yaml --validate=false
                     kubectl apply -f backend/mysql-deployment.yaml --validate=false
                 '''
-            }
-        }
-
-        stage('Open Minikube Dashboard') {
-            steps {
-                echo 'Fetching Minikube Dashboard URL...'
-                script {
-                    def dashboardUrl = sh(
-                        script: "minikube dashboard --url",
-                        returnStdout: true
-                    ).trim()
-                    echo "Minikube Dashboard is available at: ${dashboardUrl}"
-                    echo "You can open it manually in a new tab."
-                }
             }
         }
     }
