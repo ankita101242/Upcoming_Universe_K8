@@ -54,6 +54,7 @@ pipeline {
             steps {
                 echo 'Applying Kubernetes deployment manifests...'
                 sh '''
+                    export KUBECONFIG=$KUBECONFIG
                     kubectl apply -f frontend/frontend-deployment.yaml
                     kubectl apply -f backend/backend-deployment.yaml
                     kubectl apply -f backend/mysql-deployment.yaml
