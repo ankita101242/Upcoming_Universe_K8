@@ -8,13 +8,6 @@ pipeline {
 
     stages {
 
-        stage('Start Minikube') {
-            steps {
-                echo 'Starting Minikube cluster...'
-                sh 'minikube start'
-            }
-        }
-
         stage('Cleanup') {
             steps {
                 script {
