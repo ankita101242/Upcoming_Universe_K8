@@ -8,15 +8,23 @@ pipeline {
 
     stages {
 
+        stage('Start Minikube') {
+            steps {
+                echo 'Starting Minikube cluster...'
+                sh 'minikube start --driver=docker'
+            }
+        }
+
         stage('Cleanup') {
             steps {
                 script {
+                    echo 'Cleaning up existing Docker containers...'
                     sh 'docker rm -f frontend || true'
                     sh 'docker rm -f backend || true'
                 }
             }
         }
-        
+
         stage('Checkout Code') {
             steps {
                 echo 'Checking out code from repository...'
@@ -43,6 +51,7 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('', 'DockerHubCred') {
+                        echo 'Pushing Docker images to Docker Hub...'
                         sh 'docker push ankitaagrawal12/frontend:latest'
                         sh 'docker push ankitaagrawal12/backend:latest'
                     }
@@ -59,6 +68,13 @@ pipeline {
                     kubectl apply -f backend/backend-deployment.yaml
                     kubectl apply -f backend/mysql-deployment.yaml
                 '''
+            }
+        }
+
+        stage('Open Minikube Dashboard') {
+            steps {
+                echo 'Opening Minikube Dashboard...'
+                sh 'minikube dashboard --url &'
             }
         }
     }
