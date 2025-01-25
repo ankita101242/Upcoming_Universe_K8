@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         GITHUB_REPO_URL = 'https://github.com/ankita101242/Upcoming_Universe_K8.git'
+        KUBECONFIG = credentials('kubeconfig-id')
     }
 
     stages {
