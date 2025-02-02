@@ -64,6 +64,15 @@ pipeline {
             }
         }
 
+        stage('Start Minikube') {
+            steps {
+                script {
+                    echo 'Starting Minikube in the background...'
+                    sh 'minikube start &'
+                }
+            }
+        }
+        
         stage('Open Minikube Dashboard') {
            steps {
               script {
