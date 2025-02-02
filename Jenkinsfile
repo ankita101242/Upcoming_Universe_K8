@@ -57,9 +57,10 @@ pipeline {
                 echo 'Applying Kubernetes deployment manifests...'
                 sh '''
                     export KUBECONFIG=$KUBECONFIG
-                    kubectl apply -f frontend/frontend-deployment.yaml --validate=false
-                    kubectl apply -f backend/backend-deployment.yaml --validate=false
-                    kubectl apply -f backend/mysql-deployment.yaml --validate=false
+                    kubectl apply -f frontend/frontend-deployment.yaml --insecure-skip-tls-verify --validate=false
+                    kubectl apply -f backend/backend-deployment.yaml --insecure-skip-tls-verify --validate=false
+                    kubectl apply -f backend/mysql-deployment.yaml --insecure-skip-tls-verify --validate=false
+
                 '''
             }
         }
