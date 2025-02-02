@@ -7,7 +7,7 @@ pipeline {
     }
 
     stages {
-        
+
         stage('Cleanup') {
             steps {
                 script {
@@ -52,6 +52,22 @@ pipeline {
             }
         }
 
+        stage('Start Minikube') {
+            steps {
+                script {
+                    echo 'Checking if Minikube is running...'
+                    sh '''
+                        if ! minikube status | grep -q "Running"; then
+                            echo "Minikube is not running. Starting Minikube..."
+                            minikube start
+                        else
+                            echo "Minikube is already running."
+                        fi
+                    '''
+                }
+            }
+        }
+
         stage('Deploy to Kubernetes') {
             steps {
                 echo 'Applying Kubernetes deployment manifests...'
@@ -64,23 +80,14 @@ pipeline {
             }
         }
 
-        stage('Start Minikube') {
+        stage('Open Minikube Dashboard') {
             steps {
                 script {
-                    echo 'Starting Minikube in the background...'
-                    sh 'minikube start &'
+                    echo 'Opening Minikube dashboard in the background...'
+                    sh 'minikube dashboard &'
                 }
             }
         }
-        
-        stage('Open Minikube Dashboard') {
-           steps {
-              script {
-                echo 'Opening Minikube dashboard in a new tab...'
-                sh 'minikube dashboard'
-             }
-          }
-       }
     }
 
     post {
