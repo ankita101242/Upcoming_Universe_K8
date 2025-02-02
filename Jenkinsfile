@@ -68,7 +68,7 @@ pipeline {
            steps {
               script {
                 echo 'Opening Minikube dashboard in a new tab...'
-                sh 'minikube dashboard &'
+                sh 'minikube dashboard'
              }
           }
        }
