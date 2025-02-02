@@ -63,6 +63,15 @@ pipeline {
                 '''
             }
         }
+
+        stage('Open Minikube Dashboard') {
+           steps {
+              script {
+                echo 'Opening Minikube dashboard in a new tab...'
+                sh 'minikube dashboard &'
+             }
+          }
+       }
     }
 
     post {
